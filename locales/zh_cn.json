@@ -1,0 +1,5 @@
+{
+    "obastatus.help.desc": "获取 OpenBMCLAPI 相关数据的 Akari-Bot 模块",
+    "obastatus.help.version": "获取 OpenBMCLAPI 最新版本",
+    "obastatus.message.version": "OpenBMCLAPI 最新版本:"
+}
