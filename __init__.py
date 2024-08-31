@@ -51,7 +51,7 @@ async def rank(msg: Bot.MessageSession, rank: int = 1):
     {msg.locale.t('obastatus.message.rank.id', id = cluster['_id'])}
     {msg.locale.t('obastatus.message.rank.hits', hits = cluster['metric']['hits'])}
     {msg.locale.t('obastatus.message.rank.size', size = sizeConvert(cluster['metric']['bytes']))}
-    {msg.locale.t('obastatus.message.queryTime', queryTime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))}
+    {msg.locale.t('obastatus.message.queryTime', queryTime = datetime.now().strftime("%Y-%m-%d %H:%M:%S"))}
     '''
 
     await msg.finish(message)
