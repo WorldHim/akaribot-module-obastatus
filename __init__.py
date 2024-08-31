@@ -2,7 +2,7 @@ from core.builtins import Bot
 from core.component import module
 from core.utils.http import get_url
 
-import datetime
+from datetime import datetime
 
 obastatus = module(
     bind_prefix='obastatus',
@@ -12,8 +12,8 @@ obastatus = module(
     support_languages=['zh_cn'],
 )
 
-def hum_convert(value):
-    units = ["B", "KB", "MB", "GB", "TB", "PB"]
+def sizeConvert(value):
+    units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB']
     size = 1024.0
     for i in range(len(units)):
         if(value / size) < 1:
@@ -30,13 +30,14 @@ async def latestVersion():
 async def status(msg: Bot.MessageSession):
     dashboard = await get_url('https://bd.bangbang93.com/openbmclapi/metric/dashboard',
                              fmt='json')
-    message = msg.locale.t('obastatus.message.status.currentNodes', currentNodes = dashboard['currentNodes']) + ' | ' + msg.locale.t('obastatus.message.status.load', load = round(dashboard['load'] * 100, 2))
-    message += '\n'
-    message += msg.locale.t('obastatus.message.status.bandwidth', bandwidth = dashboard['bandwidth']) + ' | ' + msg.locale.t('obastatus.message.status.currentBandwidth', currentBandwidth = round(dashboard['currentBandwidth'], 2))
-    message += '\n'
-    message += msg.locale.t('obastatus.message.status.hits', hits = dashboard['hits']) + ' | ' + msg.locale.t('obastatus.message.status.bytes', bytes = hum_convert(dashboard['bytes']))
-    message += '\n'
-    message += msg.locale.t('obastatus.message.queryTime', queryTime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+
+    message = f'''
+    {msg.locale.t('obastatus.message.status.currentNodes', currentNodes = dashboard['currentNodes'])} | {msg.locale.t('obastatus.message.status.load', load = round(dashboard['load'] * 100, 2))}
+    {msg.locale.t('obastatus.message.status.bandwidth', bandwidth = dashboard['bandwidth'])} | {msg.locale.t('obastatus.message.status.currentBandwidth', currentBandwidth = round(dashboard['currentBandwidth'], 2))}
+    {msg.locale.t('obastatus.message.status.hits', hits = dashboard['hits'])} | {msg.locale.t('obastatus.message.status.bytes', size = sizeConvert(dashboard['bytes']))}
+    {msg.locale.t('obastatus.message.queryTime', queryTime = datetime.now().strftime('%Y-%m-%d %H:%M:%S'))}
+    '''
+
     await msg.finish(message)
 
 @obastatus.command('rank [<rank>] {{obastatus.help.rank}}')
@@ -45,16 +46,14 @@ async def rank(msg: Bot.MessageSession, rank: int = 1):
                              fmt='json')
     cluster = rankList[rank - 1]
 
-    message = msg.locale.t('obastatus.message.rank.name', name = cluster['name'])
-    message += '\n'
-    message += msg.locale.t('obastatus.message.rank.id', id = cluster['_id'])
-    message += '\n'
-    message += msg.locale.t('obastatus.message.rank.hits', hits = cluster['metric']['hits'])
-    message += '\n'
-    message += msg.locale.t('obastatus.message.rank.bytes', bytes = hum_convert(cluster['metric']['bytes']))
-    message += '\n'
-    message += msg.locale.t('obastatus.message.queryTime', queryTime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-    
+    message = f'''
+    {msg.locale.t('obastatus.message.rank.name', name = cluster['name'])}
+    {msg.locale.t('obastatus.message.rank.id', id = cluster['_id'])}
+    {msg.locale.t('obastatus.message.rank.hits', hits = cluster['metric']['hits'])}
+    {msg.locale.t('obastatus.message.rank.size', size = sizeConvert(cluster['metric']['bytes']))}
+    {msg.locale.t('obastatus.message.queryTime', queryTime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))}
+    '''
+
     await msg.finish(message)
 
 @obastatus.command('version {{obastatus.help.version}}')
