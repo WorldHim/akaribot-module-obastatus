@@ -34,7 +34,7 @@ async def status(msg: Bot.MessageSession):
     message = f'''
     {msg.locale.t('obastatus.message.status.currentNodes', currentNodes = dashboard['currentNodes'])} | {msg.locale.t('obastatus.message.status.load', load = round(dashboard['load'] * 100, 2))}
     {msg.locale.t('obastatus.message.status.bandwidth', bandwidth = dashboard['bandwidth'])} | {msg.locale.t('obastatus.message.status.currentBandwidth', currentBandwidth = round(dashboard['currentBandwidth'], 2))}
-    {msg.locale.t('obastatus.message.status.hits', hits = dashboard['hits'])} | {msg.locale.t('obastatus.message.status.bytes', size = sizeConvert(dashboard['bytes']))}
+    {msg.locale.t('obastatus.message.status.hits', hits = dashboard['hits'])} | {msg.locale.t('obastatus.message.status.size', size = sizeConvert(dashboard['bytes']))}
     {msg.locale.t('obastatus.message.queryTime', queryTime = datetime.now().strftime('%Y-%m-%d %H:%M:%S'))}
     '''
 
