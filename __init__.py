@@ -1,4 +1,4 @@
-from core.builtins import Bot
+from core.builtins import Bot, Image, Plain
 from core.component import module
 from core.utils.http import get_url
 
@@ -50,7 +50,20 @@ async def rank(msg: Bot.MessageSession, rank: int = 1):
     {msg.locale.t('obastatus.message.rank.size', size = sizeConvert(cluster['metric']['bytes']))}
     {msg.locale.t('obastatus.message.queryTime', queryTime = datetime.now().strftime("%Y-%m-%d %H:%M:%S"))}'''
 
-    await msg.finish(message)
+    try:
+        sponsor = cluster['sponsor']
+    except KeyError:
+        await msg.finish(message)
+    else:
+        await msg.send_message(message)
+
+        message = f'''{msg.locale.t('obastatus.message.sponsor.name', name = sponsor['name'])}
+        {msg.locale.t('obastatus.message.sponsor.url', url = sponsor['url'])}'''
+
+        try:
+            await msg.finish([Plain(message), Image(str(sponsor['banner']))])
+        except:
+            await msg.finish(message)
 
 @obastatus.command('version {{obastatus.help.version}}')
 async def version(msg: Bot.MessageSession):

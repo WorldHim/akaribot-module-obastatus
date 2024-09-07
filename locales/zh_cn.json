@@ -13,6 +13,8 @@
     "obastatus.message.rank.id": "节点 id: ${id}",
     "obastatus.message.rank.hits": "节点请求: ${hits} 次",
     "obastatus.message.rank.size": "数据量: ${size}",
+    "obastatus.message.sponsor.name": "赞助商: ${name}",
+    "obastatus.message.sponsor.url": "赞助商网站: ${url}",
     "obastatus.message.version": "OpenBMCLAPI 最新版本: ${version}",
     "obastatus.message.queryTime": "请求时间: ${queryTime}"
 }
