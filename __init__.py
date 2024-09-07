@@ -22,18 +22,22 @@ def sizeConvert(value):
 
 async def latestVersion():
     version = await get_url('https://bd.bangbang93.com/openbmclapi/metric/version',
-                           fmt='json')
+                            fmt='json')
     return f'''{version['version']}@{version['_resolved'].split('#')[1][:7]}'''
 
 @obastatus.command('{{obastatus.help.status}}')
 @obastatus.command('status {{obastatus.help.status}}')
 async def status(msg: Bot.MessageSession):
     dashboard = await get_url('https://bd.bangbang93.com/openbmclapi/metric/dashboard',
-                             fmt='json')
+                              fmt='json')
 
-    message = f'''{msg.locale.t('obastatus.message.status.currentNodes', currentNodes = dashboard['currentNodes'])} | {msg.locale.t('obastatus.message.status.load', load = round(dashboard['load'] * 100, 2))}
-{msg.locale.t('obastatus.message.status.bandwidth', bandwidth = dashboard['bandwidth'])} | {msg.locale.t('obastatus.message.status.currentBandwidth', currentBandwidth = round(dashboard['currentBandwidth'], 2))}
-{msg.locale.t('obastatus.message.status.hits', hits = dashboard['hits'])} | {msg.locale.t('obastatus.message.status.size', size = sizeConvert(dashboard['bytes']))}
+    message = f'''{msg.locale.t('obastatus.message.status',
+                                currentNodes = dashboard['currentNodes'],
+                                load = round(dashboard['load'] * 100, 2),
+                                bandwidth = dashboard['bandwidth'],
+                                currentBandwidth = round(dashboard['currentBandwidth'], 2),
+                                hits = dashboard['hits'],
+                                size = sizeConvert(dashboard['bytes']))}
 {msg.locale.t('obastatus.message.queryTime', queryTime = datetime.now().strftime('%Y-%m-%d %H:%M:%S'))}'''
 
     await msg.finish(message)
@@ -44,10 +48,11 @@ async def rank(msg: Bot.MessageSession, rank: int = 1):
                              fmt='json')
     cluster = rankList[rank - 1]
 
-    message = f'''{msg.locale.t('obastatus.message.rank.name', name = cluster['name'])}
-{msg.locale.t('obastatus.message.rank.id', id = cluster['_id'])}
-{msg.locale.t('obastatus.message.rank.hits', hits = cluster['metric']['hits'])}
-{msg.locale.t('obastatus.message.rank.size', size = sizeConvert(cluster['metric']['bytes']))}
+    message = f'''{msg.locale.t('obastatus.message.rank',
+                                name = cluster['name'],
+                                id = cluster['_id'],
+                                hits = cluster['metric']['hits'],
+                                size = sizeConvert(cluster['metric']['bytes']))}
 {msg.locale.t('obastatus.message.queryTime', queryTime = datetime.now().strftime('%Y-%m-%d %H:%M:%S'))}'''
 
     try:
@@ -57,8 +62,9 @@ async def rank(msg: Bot.MessageSession, rank: int = 1):
     else:
         await msg.send_message(message)
 
-        message = f'''{msg.locale.t('obastatus.message.sponsor.name', name = sponsor['name'])}
-{msg.locale.t('obastatus.message.sponsor.url', url = sponsor['url'])}'''
+        message = msg.locale.t('obastatus.message.sponsor',
+                               name = sponsor['name'],
+                               url = sponsor['url'])
 
         try:
             await msg.finish([Plain(message), Image(str(sponsor['banner']))])
