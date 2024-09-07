@@ -23,7 +23,7 @@ def sizeConvert(value):
 async def latestVersion():
     version = await get_url('https://bd.bangbang93.com/openbmclapi/metric/version',
                            fmt='json')
-    return version['version'] + '@' + version['_resolved'].split('#')[1][:7]
+    return f'''{version['version']}@{version['_resolved'].split('#')[1][:7]}'''
 
 @obastatus.command('{{obastatus.help.status}}')
 @obastatus.command('status {{obastatus.help.status}}')
