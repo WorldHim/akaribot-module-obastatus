@@ -62,7 +62,7 @@ async def rank(msg: Bot.MessageSession, rank: int = 1):
 
         try:
             await msg.finish([Plain(message), Image(str(sponsor['banner']))])
-        except:
+        except Exception:
             await msg.finish(message)
 
 @obastatus.command('version {{obastatus.help.version}}')
