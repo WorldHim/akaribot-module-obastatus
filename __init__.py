@@ -75,37 +75,43 @@ async def rank(msg: Bot.MessageSession, rank: int = 1):
 async def top(msg: Bot.MessageSession, rank: int = 10):
     rankList = await get_url('https://bd.bangbang93.com/openbmclapi/metric/rank',
                              fmt='json')
-    message = ''
 
-    for i in range(rank - 1):
+    cluster = rankList[0]
+
+    try:
+        sponsor_name = cluster['sponsor']['name']
+    except KeyError:
+        sponsor_name = "未知"
+    message = msg.locale.t('obastatus.message.top',
+                           rank = 1,
+                           name = cluster['name'],
+                           id = cluster['_id'],
+                           hits = cluster['metric']['hits'],
+                           size = sizeConvert(cluster['metric']['bytes']),
+                           sponsor_name = sponsor_name)
+
+    for i in range(1, rank):
+        message += '\n'
+
         cluster = rankList[i]
 
         try:
             sponsor_name = cluster['sponsor']['name']
         except KeyError:
             sponsor_name = "未知"
-        message += msg.locale.t('obastatus.message.top',
-                                rank = i + 1,
-                                name = cluster['name'],
-                                id = cluster['_id'],
-                                hits = cluster['metric']['hits'],
-                                size = sizeConvert(cluster['metric']['bytes']),
-                                sponsor_name = sponsor_name)
-        message += '\n'
-    cluster = rankList[rank - 1]
-    try:
-        sponsor_name = cluster['sponsor']['name']
-    except KeyError:
-        sponsor_name = "未知"
-    message += msg.locale.t('obastatus.message.top',
-                            rank = rank,
-                            name = cluster['name'],
-                            id = cluster['_id'],
-                            hits = cluster['metric']['hits'],
-                            size = sizeConvert(cluster['metric']['bytes']),
-                            sponsor_name = sponsor_name)
 
-    await msg.finish(message)
+        try:
+            message += msg.locale.t('obastatus.message.top',
+                                    rank = i + 1,
+                                    name = cluster['name'],
+                                    id = cluster['_id'],
+                                    hits = cluster['metric']['hits'],
+                                    size = sizeConvert(cluster['metric']['bytes']),
+                                    sponsor_name = sponsor_name)
+        except KeyError:
+            break
+
+    await msg.send_message(message)
 
 @obastatus.command('version {{obastatus.help.version}}')
 async def version(msg: Bot.MessageSession):
