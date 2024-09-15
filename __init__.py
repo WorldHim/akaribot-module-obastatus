@@ -113,6 +113,21 @@ async def top(msg: Bot.MessageSession, rank: int = 10):
 
     await msg.send_message(message)
 
+@obastatus.command('sponsor {{obastatus.help.sponsor}}')
+async def sponsor(msg: Bot.MessageSession):
+    sponsor = await get_url('https://bd.bangbang93.com/openbmclapi/sponsor',
+                            fmt='json')
+    cluster = await get_url('https://bd.bangbang93.com/openbmclapi/sponsor/' + str(sponsor['_id']),
+                            fmt='json')
+    message = msg.locale.t('obastatus.message.sponsor',
+                           name = cluster['name'],
+                           url = cluster['url'])
+
+    try:
+        await msg.finish([Plain(message), Image(str(cluster['banner']))])
+    except Exception:
+        await msg.finish(message)
+
 @obastatus.command('version {{obastatus.help.version}}')
 async def version(msg: Bot.MessageSession):
     await msg.finish(msg.locale.t('obastatus.message.version', version = await latestVersion()))
