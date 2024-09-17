@@ -23,7 +23,7 @@ def sizeConvert(value):
 async def latestVersion():
     version = await get_url('https://bd.bangbang93.com/openbmclapi/metric/version',
                             fmt='json')
-    return f'''{version['version']}@{version['_resolved'].split('#')[1][:7]}'''
+    return f'''{version.get('version')}@{version.get('_resolved').split('#')[1][:7]}'''
 
 @obastatus.command('{{obastatus.help.status}}')
 @obastatus.command('status {{obastatus.help.status}}')
@@ -32,12 +32,12 @@ async def status(msg: Bot.MessageSession):
                               fmt='json')
 
     message = f'''{msg.locale.t('obastatus.message.status',
-                                currentNodes = dashboard['currentNodes'],
-                                load = round(dashboard['load'] * 100, 2),
-                                bandwidth = dashboard['bandwidth'],
-                                currentBandwidth = round(dashboard['currentBandwidth'], 2),
-                                hits = dashboard['hits'],
-                                size = sizeConvert(dashboard['bytes']))}
+                                currentNodes = dashboard.get('currentNodes'),
+                                load = round(dashboard.get('load') * 100, 2),
+                                bandwidth = dashboard.get('bandwidth'),
+                                currentBandwidth = round(dashboard.get('currentBandwidth'), 2),
+                                hits = dashboard.get('hits'),
+                                size = sizeConvert(dashboard.get('bytes')))}
 {msg.locale.t('obastatus.message.queryTime', queryTime = datetime.now().strftime('%Y-%m-%d %H:%M:%S'))}'''
 
     await msg.finish(message)
@@ -48,26 +48,26 @@ async def rank(msg: Bot.MessageSession, rank: int = 1):
                              fmt='json')
     cluster = rankList[rank - 1]
 
-    message = f'''{msg.locale.t('obastatus.message.cluster',
-                                name = cluster['name'],
-                                id = cluster['_id'],
-                                hits = cluster['metric']['hits'],
-                                size = sizeConvert(cluster['metric']['bytes']))}
+    message = f'''{'🟩' if cluster.get('isEnabled') else '🟥'}
+{msg.locale.t('obastatus.message.cluster',
+              name = cluster.get('name'),
+              id = cluster.get('_id'),
+              hits = cluster.get('metric').get('hits'),
+              size = sizeConvert(cluster.get('metric').get('bytes')))}
 {msg.locale.t('obastatus.message.queryTime', queryTime = datetime.now().strftime('%Y-%m-%d %H:%M:%S'))}'''
 
-    try:
-        sponsor = cluster['sponsor']
-    except KeyError:
+    if 'sponsor' not in cluster:
         await msg.finish(message)
     else:
-        await msg.send_message(message)
+        msg.send_message(message)
+        sponsor = cluster.get('sponsor')
 
         message = msg.locale.t('obastatus.message.sponsor',
-                               name = sponsor['name'],
-                               url = sponsor['url'])
+                               name = sponsor.get('name'),
+                               url = sponsor.get('url'))
 
         try:
-            await msg.finish([Plain(message), Image(str(sponsor['banner']))])
+            await msg.finish([Plain(message), Image(str(sponsor.get('banner')))])
         except Exception:
             await msg.finish(message)
 
@@ -78,40 +78,33 @@ async def top(msg: Bot.MessageSession, rank: int = 10):
 
     cluster = rankList[0]
 
-    try:
-        sponsor_name = cluster['sponsor']['name']
-    except KeyError:
-        sponsor_name = "未知"
-    message = msg.locale.t('obastatus.message.top',
-                           rank = 1,
-                           name = cluster['name'],
-                           id = cluster['_id'],
-                           hits = cluster['metric']['hits'],
-                           size = sizeConvert(cluster['metric']['bytes']),
-                           sponsor_name = sponsor_name)
+    sponsor_name = cluster.get('sponsor', '未知').get('name')
+    message = '🟩| ' if cluster.get('isEnabled') else '🟥| ' 
+    message += msg.locale.t('obastatus.message.top',
+                            rank = 1,
+                            name = cluster.get('name'),
+                            id = cluster.get('_id'),
+                            hits = cluster.get('metric').get('hits'),
+                            size = sizeConvert(cluster.get('metric').get('bytes')),
+                            sponsor_name = sponsor_name)
 
-    for i in range(1, rank):
+    for rank, cluster in enumerate(rankList):
         message += '\n'
 
-        cluster = rankList[i]
-
-        try:
-            sponsor_name = cluster['sponsor']['name']
-        except KeyError:
-            sponsor_name = "未知"
+        sponsor_name = cluster.get('sponsor', '未知').get('name')
 
         try:
             message += msg.locale.t('obastatus.message.top',
-                                    rank = i + 1,
-                                    name = cluster['name'],
-                                    id = cluster['_id'],
-                                    hits = cluster['metric']['hits'],
-                                    size = sizeConvert(cluster['metric']['bytes']),
+                                    rank = rank,
+                                    name = cluster.get('name'),
+                                    id = cluster.get('_id'),
+                                    hits = cluster.get('metric').get('hits'),
+                                    size = sizeConvert(cluster.get('metric').get(['bytes'])),
                                     sponsor_name = sponsor_name)
         except KeyError:
             break
 
-    await msg.send_message(message)
+    await msg.finish(message)
 
 @obastatus.command('sponsor {{obastatus.help.sponsor}}')
 async def sponsor(msg: Bot.MessageSession):
@@ -120,11 +113,11 @@ async def sponsor(msg: Bot.MessageSession):
     cluster = await get_url('https://bd.bangbang93.com/openbmclapi/sponsor/' + str(sponsor['_id']),
                             fmt='json')
     message = msg.locale.t('obastatus.message.sponsor',
-                           name = cluster['name'],
-                           url = cluster['url'])
+                           name = cluster.get('name'),
+                           url = cluster.get('url'))
 
     try:
-        await msg.finish([Plain(message), Image(str(cluster['banner']))])
+        await msg.finish([Plain(message), Image(str(cluster.get('banner')))])
     except Exception:
         await msg.finish(message)
 
