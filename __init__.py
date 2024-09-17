@@ -59,7 +59,7 @@ async def rank(msg: Bot.MessageSession, rank: int = 1):
     if 'sponsor' not in cluster:
         await msg.finish(message)
     else:
-        msg.send_message(message)
+        await msg.send_message(message)
         sponsor = cluster.get('sponsor')
 
         message = msg.locale.t('obastatus.message.sponsor',
@@ -77,9 +77,13 @@ async def top(msg: Bot.MessageSession, rank: int = 10):
                              fmt='json')
 
     cluster = rankList[0]
-
-    sponsor_name = cluster.get('sponsor', '未知').get('name')
-    message = '🟩| ' if cluster.get('isEnabled') else '🟥| ' 
+    sponsor = cluster.get('sponsor', '未知')
+        
+    try:
+        sponsor_name = sponsor.get('name')
+    except AttributeError:
+        sponsor_name = '未知'
+    message = '🟩 | ' if cluster.get('isEnabled') else '🟥 | '
     message += msg.locale.t('obastatus.message.top',
                             rank = 1,
                             name = cluster.get('name'),
@@ -88,18 +92,26 @@ async def top(msg: Bot.MessageSession, rank: int = 10):
                             size = sizeConvert(cluster.get('metric').get('bytes')),
                             sponsor_name = sponsor_name)
 
-    for rank, cluster in enumerate(rankList):
+    for i in range(1, rank):
+        cluster = rankList[i]
+
         message += '\n'
 
-        sponsor_name = cluster.get('sponsor', '未知').get('name')
+        sponsor = cluster.get('sponsor', '未知')
+        
+        try:
+            sponsor_name = sponsor.get('name')
+        except AttributeError:
+            sponsor_name = '未知'
 
         try:
+            message += '🟩 | ' if cluster.get('isEnabled') else '🟥 | '
             message += msg.locale.t('obastatus.message.top',
-                                    rank = rank,
+                                    rank = i + 1,
                                     name = cluster.get('name'),
                                     id = cluster.get('_id'),
                                     hits = cluster.get('metric').get('hits'),
-                                    size = sizeConvert(cluster.get('metric').get(['bytes'])),
+                                    size = sizeConvert(cluster.get('metric').get('bytes')),
                                     sponsor_name = sponsor_name)
         except KeyError:
             break
