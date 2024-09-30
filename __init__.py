@@ -76,26 +76,10 @@ async def top(msg: Bot.MessageSession, rank: int = 10):
     rankList = await get_url('https://bd.bangbang93.com/openbmclapi/metric/rank',
                              fmt='json')
 
-    cluster = rankList[0]
-    sponsor = cluster.get('sponsor', '未知')
-        
-    try:
-        sponsor_name = sponsor.get('name')
-    except AttributeError:
-        sponsor_name = '未知'
-    message = '🟩 | ' if cluster.get('isEnabled') else '🟥 | '
-    message += msg.locale.t('obastatus.message.top',
-                            rank = 1,
-                            name = cluster.get('name'),
-                            id = cluster.get('_id'),
-                            hits = cluster.get('metric').get('hits'),
-                            size = sizeConvert(cluster.get('metric').get('bytes')),
-                            sponsor_name = sponsor_name)
+    message = ''
 
-    for i in range(1, rank):
+    for i in range(0, rank):
         cluster = rankList[i]
-
-        message += '\n'
 
         sponsor = cluster.get('sponsor', '未知')
         
@@ -115,6 +99,10 @@ async def top(msg: Bot.MessageSession, rank: int = 10):
                                     sponsor_name = sponsor_name)
         except KeyError:
             break
+
+        message += '\n'
+
+    message.rstrip()
 
     await msg.finish(message)
 
