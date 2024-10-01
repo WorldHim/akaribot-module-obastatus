@@ -153,7 +153,7 @@ async def search(msg: Bot.MessageSession, context: str):
     if message:
         await msg.finish(message)
     else:
-        await msg.finish(Image('https://http.cat/404.jpg'))
+        await msg.finish(Image(msg.locale.t('obastatus.error.notfound')))
 
 @obastatus.command('sponsor {{obastatus.help.sponsor}}')
 async def sponsor(msg: Bot.MessageSession):
