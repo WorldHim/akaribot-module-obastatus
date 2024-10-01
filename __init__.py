@@ -150,7 +150,10 @@ async def search(msg: Bot.MessageSession, context: str):
 
     message.rstrip()
 
-    await msg.finish(message)
+    if message:
+        await msg.finish(message)
+    else:
+        await msg.finish(Image('https://http.cat/404.jpg'))
 
 @obastatus.command('sponsor {{obastatus.help.sponsor}}')
 async def sponsor(msg: Bot.MessageSession):
