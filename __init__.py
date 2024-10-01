@@ -117,7 +117,7 @@ async def top(msg: Bot.MessageSession, rank: int = 10):
 
         message += '\n'
 
-    message.rstrip()
+    message = message.rstrip()
 
     await msg.finish(message)
 
@@ -152,7 +152,7 @@ async def search(msg: Bot.MessageSession, context: str):
 
         message += '\n'
 
-    message.rstrip()
+    message = message.rstrip()
 
     if message:
         await msg.finish(message)
