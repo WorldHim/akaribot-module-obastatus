@@ -2,6 +2,7 @@ from core.builtins import Bot, Image, Plain
 from core.component import module
 from core.utils.http import get_url
 
+import re
 from datetime import datetime
 
 obastatus = module(
@@ -12,7 +13,7 @@ obastatus = module(
     support_languages=['zh_cn'],
 )
 
-def sizeConvert(value):
+async def sizeConvert(value):
     units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB']
     size = 1024.0
     for i in range(len(units)):
@@ -24,6 +25,16 @@ async def latestVersion():
     version = await get_url('https://bd.bangbang93.com/openbmclapi/metric/version',
                             fmt='json')
     return f'''{version.get('version')}@{version.get('_resolved').split('#')[1][:7]}'''
+
+async def searchCluster(clusterList: dict, key: str, value):
+    result = []
+    regex = re.compile(value, re.IGNORECASE)
+
+    for i in range(0, len(clusterList)):
+        if regex.search(clusterList[i].get(key)):
+            result.append((i + 1,clusterList[i]))
+
+    return result
 
 @obastatus.command('{{obastatus.help.status}}')
 @obastatus.command('status {{obastatus.help.status}}')
@@ -37,7 +48,7 @@ async def status(msg: Bot.MessageSession):
                                 bandwidth = dashboard.get('bandwidth'),
                                 currentBandwidth = round(dashboard.get('currentBandwidth'), 2),
                                 hits = dashboard.get('hits'),
-                                size = sizeConvert(dashboard.get('bytes')))}
+                                size = await sizeConvert(dashboard.get('bytes')))}
 {msg.locale.t('obastatus.message.queryTime', queryTime = datetime.now().strftime('%Y-%m-%d %H:%M:%S'))}'''
 
     await msg.finish(message)
@@ -53,7 +64,7 @@ async def rank(msg: Bot.MessageSession, rank: int = 1):
               name = cluster.get('name'),
               id = cluster.get('_id'),
               hits = cluster.get('metric').get('hits'),
-              size = sizeConvert(cluster.get('metric').get('bytes')))}
+              size = await sizeConvert(cluster.get('metric').get('bytes')))}
 {msg.locale.t('obastatus.message.queryTime', queryTime = datetime.now().strftime('%Y-%m-%d %H:%M:%S'))}'''
 
     if 'sponsor' not in cluster:
@@ -95,7 +106,42 @@ async def top(msg: Bot.MessageSession, rank: int = 10):
                                     name = cluster.get('name'),
                                     id = cluster.get('_id'),
                                     hits = cluster.get('metric').get('hits'),
-                                    size = sizeConvert(cluster.get('metric').get('bytes')),
+                                    size = await sizeConvert(cluster.get('metric').get('bytes')),
+                                    sponsor_name = sponsor_name)
+        except KeyError:
+            break
+
+        message += '\n'
+
+    message.rstrip()
+
+    await msg.finish(message)
+
+@obastatus.command('search <context> {{obastatus.help.search}}')
+async def search(msg: Bot.MessageSession, context: str):
+    rankList = await get_url('https://bd.bangbang93.com/openbmclapi/metric/rank',
+                                fmt='json')
+
+    clusterList = await searchCluster(rankList, 'name', context)
+
+    message = ''
+
+    for rank, cluster in clusterList:
+        sponsor = cluster.get('sponsor', '未知')
+        
+        try:
+            sponsor_name = sponsor.get('name')
+        except AttributeError:
+            sponsor_name = '未知'
+
+        try:
+            message += '🟩 | ' if cluster.get('isEnabled') else '🟥 | '
+            message += msg.locale.t('obastatus.message.top',
+                                    rank = rank,
+                                    name = cluster.get('name'),
+                                    id = cluster.get('_id'),
+                                    hits = cluster.get('metric').get('hits'),
+                                    size = await sizeConvert(cluster.get('metric').get('bytes')),
                                     sponsor_name = sponsor_name)
         except KeyError:
             break
