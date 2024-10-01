@@ -5,7 +5,6 @@
     "obastatus.help.top": "获取指定排名之前的 OpenBMCLAPI 节点状态",
     "obastatus.help.search": "查找指定名称的 OpenBMCLAPI 节点状态",
     "obastatus.help.sponsor": "获取随机赞助商",
-    "obastatus.help.version": "获取 OpenBMCLAPI 最新版本",
     "obastatus.message.status": "在线节点数: ${currentNodes} 个 | 负载: ${load} %\n总带宽: ${bandwidth} Mbps | 出网带宽: ${currentBandwidth} Mbps\n当日请求: ${hits} 次 | 数据量: ${size}",
     "obastatus.message.cluster": "节点名: ${name}\n节点 id: ${id}\n节点请求: ${hits} 次 | 数据量: ${size}",
     "obastatus.message.sponsor": "赞助商: ${name}\n赞助商网站: ${url}",

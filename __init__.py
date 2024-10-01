@@ -53,6 +53,7 @@ async def status(msg: Bot.MessageSession):
                                 currentBandwidth = round(dashboard.get('currentBandwidth'), 2),
                                 hits = dashboard.get('hits'),
                                 size = await sizeConvert(dashboard.get('bytes')))}
+{msg.locale.t('obastatus.message.version', version = await latestVersion())}
 {msg.locale.t('obastatus.message.queryTime', queryTime = datetime.now().strftime('%Y-%m-%d %H:%M:%S'))}'''
 
     await msg.finish(message)
@@ -173,7 +174,3 @@ async def sponsor(msg: Bot.MessageSession):
         await msg.finish([Plain(message), Image(str(cluster.get('banner')))])
     except Exception:
         await msg.finish(message)
-
-@obastatus.command('version {{obastatus.help.version}}')
-async def version(msg: Bot.MessageSession):
-    await msg.finish(msg.locale.t('obastatus.message.version', version = await latestVersion()))
