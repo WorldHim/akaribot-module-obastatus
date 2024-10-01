@@ -11,6 +11,5 @@
     "obastatus.message.sponsor": "赞助商: ${name}\n赞助商网站: ${url}",
     "obastatus.message.top": "${rank} | ${name} | ${id}\n${hits} | ${size}\n赞助商 ${sponsor_name}",
     "obastatus.message.version": "OpenBMCLAPI 最新版本: ${version}",
-    "obastatus.message.queryTime": "请求时间: ${queryTime}",
-    "obastatus.error.notfound": "https://http.cat/404.jpg"
+    "obastatus.message.queryTime": "请求时间: ${queryTime}"
 }

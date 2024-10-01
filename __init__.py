@@ -3,7 +3,11 @@ from core.component import module
 from core.utils.http import get_url
 
 import re
+from config import Config
 from datetime import datetime
+
+API_URL = Config('apiurl', 'https://bd.bangbang93.com/openbmclapi')
+NOTFOUND_IMG = Config('notfoundimg', 'https://http.cat/404.jpg')
 
 obastatus = module(
     bind_prefix='obastatus',
@@ -22,7 +26,7 @@ async def sizeConvert(value):
         value /= size
 
 async def latestVersion():
-    version = await get_url('https://bd.bangbang93.com/openbmclapi/metric/version',
+    version = await get_url(f'{API_URL}/metric/version',
                             fmt='json')
     return f'''{version.get('version')}@{version.get('_resolved').split('#')[1][:7]}'''
 
@@ -39,7 +43,7 @@ async def searchCluster(clusterList: dict, key: str, value):
 @obastatus.command('{{obastatus.help.status}}')
 @obastatus.command('status {{obastatus.help.status}}')
 async def status(msg: Bot.MessageSession):
-    dashboard = await get_url('https://bd.bangbang93.com/openbmclapi/metric/dashboard',
+    dashboard = await get_url(f'{API_URL}/metric/dashboard',
                               fmt='json')
 
     message = f'''{msg.locale.t('obastatus.message.status',
@@ -55,7 +59,7 @@ async def status(msg: Bot.MessageSession):
 
 @obastatus.command('rank [<rank>] {{obastatus.help.rank}}')
 async def rank(msg: Bot.MessageSession, rank: int = 1):
-    rankList = await get_url('https://bd.bangbang93.com/openbmclapi/metric/rank',
+    rankList = await get_url(f'{API_URL}/metric/rank',
                              fmt='json')
     cluster = rankList[rank - 1]
 
@@ -84,7 +88,7 @@ async def rank(msg: Bot.MessageSession, rank: int = 1):
 
 @obastatus.command('top [<rank>] {{obastatus.help.top}}')
 async def top(msg: Bot.MessageSession, rank: int = 10):
-    rankList = await get_url('https://bd.bangbang93.com/openbmclapi/metric/rank',
+    rankList = await get_url(f'{API_URL}/metric/rank',
                              fmt='json')
 
     message = ''
@@ -119,7 +123,7 @@ async def top(msg: Bot.MessageSession, rank: int = 10):
 
 @obastatus.command('search <context> {{obastatus.help.search}}')
 async def search(msg: Bot.MessageSession, context: str):
-    rankList = await get_url('https://bd.bangbang93.com/openbmclapi/metric/rank',
+    rankList = await get_url(f'{API_URL}/metric/rank',
                                 fmt='json')
 
     clusterList = await searchCluster(rankList, 'name', context)
@@ -153,13 +157,13 @@ async def search(msg: Bot.MessageSession, context: str):
     if message:
         await msg.finish(message)
     else:
-        await msg.finish(Image(msg.locale.t('obastatus.error.notfound')))
+        await msg.finish(Image(NOTFOUND_IMG))
 
 @obastatus.command('sponsor {{obastatus.help.sponsor}}')
 async def sponsor(msg: Bot.MessageSession):
-    sponsor = await get_url('https://bd.bangbang93.com/openbmclapi/sponsor',
+    sponsor = await get_url(f'{API_URL}/sponsor',
                             fmt='json')
-    cluster = await get_url('https://bd.bangbang93.com/openbmclapi/sponsor/' + str(sponsor['_id']),
+    cluster = await get_url(f'{API_URL}/sponsor/' + str(sponsor['_id']),
                             fmt='json')
     message = msg.locale.t('obastatus.message.sponsor',
                            name = cluster.get('name'),
