@@ -30,9 +30,9 @@ async def searchCluster(clusterList: dict, key: str, value):
     result = []
     regex = re.compile(value, re.IGNORECASE)
 
-    for i in range(0, len(clusterList)):
-        if regex.search(clusterList[i].get(key)):
-            result.append((i + 1,clusterList[i]))
+    for (rank, cluster) in enumerate(clusterList, 1):
+        if regex.search(cluster.get(key)):
+            result.append((rank, cluster))
 
     return result
 
